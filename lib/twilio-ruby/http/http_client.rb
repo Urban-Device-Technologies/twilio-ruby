@@ -31,7 +31,13 @@ module Twilio
           f.options.params_encoder = Faraday::FlatParamsEncoder
           f.request :url_encoded
           f.headers = request.headers
-          f.request(:basic_auth, request.auth[0], request.auth[1])
+
+	  if Faraday::VERSION.start_with?('2.')
+            f.request(:authorization, :basic, request.auth[0], request.auth[1])
+          else
+            f.request(:basic_auth, request.auth[0], request.auth[1])
+          end
+
           f.proxy = "#{@proxy_prot}://#{@proxy_auth}#{@proxy_path}" if @proxy_prot && @proxy_path
           f.options.open_timeout = request.timeout || @timeout
           f.options.timeout = request.timeout || @timeout
